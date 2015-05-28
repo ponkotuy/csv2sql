@@ -1,0 +1,16 @@
+{
+  "name": "csv2sql",
+  "version": "0.0.1",
+  "description": "Change CSV to SQL",
+  "main": "main.js",
+  "author": "ponkotuy",
+  "license": "MIT",
+  "devDependencies": {
+    "bootstrap": "*",
+    "gulp-coffee": "*",
+    "jquery": "^2.1.4"
+  },
+  "scripts": {
+    "test": "test"
+  }
+}
