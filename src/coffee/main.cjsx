@@ -25,5 +25,5 @@ Changer = React.createClass
       </div>
     </form>
 
-window.onload ->
+window.onload = ->
   React.render <Changer />, document.getElementById('changer')
