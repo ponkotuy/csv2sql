@@ -25,7 +25,12 @@ ManiSelector = React.createClass
 
 Changer = React.createClass
   getInitialState: ->
-    csv: ''
+    csv: """
+         ship
+         type,class,name,weight
+         軽巡洋艦,川内型,那珂,5195
+         重巡洋艦,利根型,利根,11213
+         """
     sql: ''
     now: ''
 
@@ -61,16 +66,24 @@ Changer = React.createClass
     </form>
 
 
+convertCell = (cell) ->
+  cell = cell.trim()
+  if cell.length > 0 and (cell[0] not in ['"', "'"]) and isNaN(cell)
+    '"' + cell + '"'
+  else
+    cell
+
 class Table
   constructor: (@lines) ->
     @name = @lines[0]
     @columns = @lines[1].split(',')
-    @records = @lines.slice(2).map (l) -> l.split(',')
+    @records = @lines.slice(2).map (l) ->
+       l.split(',').map(convertCell)
 
   # nullable
   toSQL: (mani) ->
     switch mani
-      when 'INSERT' then console.log(@createInsert()); @createInsert()
+      when 'INSERT' then @createInsert()
       when 'DELETE' then @createDelete()
       when 'UPSERT' then @createUpsert()
       else null
@@ -82,6 +95,7 @@ class Table
       #{lines.join(',\n  ')};
     """
 
+
 isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
 dropEmptyLine = (xs) -> _.dropWhile(xs, isEmpty)
@@ -92,7 +106,7 @@ convert = (mani, csv) ->
     lines = _.dropWhile(lines, nonEmpty)
     lines = dropEmptyLine(lines)
     new Table(tableLines)
-  (tables.map (t) -> console.log(t); t.toSQL(mani)).join('\n\n')
+  (tables.map (t) -> t.toSQL(mani)).join('\n\n')
 
 window.onload = ->
   React.render <Changer />, document.getElementById('changer')
