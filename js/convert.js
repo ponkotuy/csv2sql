@@ -41,7 +41,11 @@
     };
 
     Table.prototype.whereIn = function() {
-      return "  WHERE (" + (this.columns.join(', ')) + ") IN\n    " + (this.linesWithComma().join(',\n    ')) + ";";
+      if (this.columns.length === 1) {
+        return "  WHERE " + this.columns[0] + " IN (" + (this.records.concat().join(', ')) + ")";
+      } else {
+        return "  WHERE (" + (this.columns.join(', ')) + ") IN (\n    " + (this.linesWithComma().join(',\n    ')) + ")";
+      }
     };
 
     Table.prototype.createInsert = function() {
@@ -49,11 +53,11 @@
     };
 
     Table.prototype.createDelete = function() {
-      return "DELETE FROM " + this.name + "\n" + (this.whereIn());
+      return "DELETE FROM " + this.name + "\n" + (this.whereIn()) + ";";
     };
 
     Table.prototype.createSelect = function() {
-      return "SELECT * FROM " + this.name + "\n" + (this.whereIn());
+      return "SELECT * FROM " + this.name + "\n" + (this.whereIn()) + ";";
     };
 
     return Table;
