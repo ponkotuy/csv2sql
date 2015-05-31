@@ -5,7 +5,7 @@
     var ref;
     cell = cell.trim();
     if (cell.length > 0 && ((ref = cell[0]) !== '"' && ref !== "'") && isNaN(cell)) {
-      return '"' + cell + '"';
+      return "'" + cell + "'";
     } else {
       return cell;
     }
