@@ -2,7 +2,7 @@
 convertCell = (cell) ->
   cell = cell.trim()
   if cell.length > 0 and (cell[0] not in ['"', "'"]) and isNaN(cell)
-    '"' + cell + '"'
+    "'" + cell + "'"
   else
     cell
 
