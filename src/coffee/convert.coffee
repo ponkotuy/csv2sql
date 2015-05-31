@@ -24,7 +24,10 @@ class Table
   linesWithComma: () -> @records.map (line) -> "(#{line.join(', ')})"
 
   whereIn: () ->
-    "  WHERE (#{@columns.join(', ')}) IN\n    #{@linesWithComma().join(',\n    ')};"
+    if @columns.length == 1
+      "  WHERE #{@columns[0]} IN (#{@records.concat().join(', ')})"
+    else
+      "  WHERE (#{@columns.join(', ')}) IN (\n    #{@linesWithComma().join(',\n    ')})"
 
   createInsert: ->
     """
@@ -35,13 +38,13 @@ class Table
   createDelete: ->
     """
     DELETE FROM #{@name}
-    #{@whereIn()}
+    #{@whereIn()};
     """
 
   createSelect: ->
     """
     SELECT * FROM #{@name}
-    #{@whereIn()}
+    #{@whereIn()};
     """
 
 isEmpty = (str) -> str == ''
