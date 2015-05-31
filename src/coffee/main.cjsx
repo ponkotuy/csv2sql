@@ -1,5 +1,5 @@
 
-Manipulations = ['INSERT', 'DELETE', 'UPSERT']
+Manipulations = ['INSERT', 'DELETE', 'SELECT']
 
 ManiSelector = React.createClass
   propTypes:
@@ -59,54 +59,12 @@ Changer = React.createClass
         <ManiSelector onChange=@convert ref="mani" />
         <div className="col-sm-offset-3 col-sm-3">
           <div className="top-margin">
-            <button type="button" id="save" className="btn brn-default">Save file</button>
+{#            <button type="button" id="save" className="btn brn-default">Save file</button>}
           </div>
         </div>
       </div>
     </form>
 
-
-convertCell = (cell) ->
-  cell = cell.trim()
-  if cell.length > 0 and (cell[0] not in ['"', "'"]) and isNaN(cell)
-    '"' + cell + '"'
-  else
-    cell
-
-class Table
-  constructor: (@lines) ->
-    @name = @lines[0]
-    @columns = @lines[1].split(',')
-    @records = @lines.slice(2).map (l) ->
-       l.split(',').map(convertCell)
-
-  # nullable
-  toSQL: (mani) ->
-    switch mani
-      when 'INSERT' then @createInsert()
-      when 'DELETE' then @createDelete()
-      when 'UPSERT' then @createUpsert()
-      else null
-
-  createInsert: ->
-    lines = @records.map (line) -> "(#{line.join(', ')})"
-    """
-    INSERT INTO #{@name} (#{@columns.join(', ')}) VALUES
-      #{lines.join(',\n  ')};
-    """
-
-
-isEmpty = (str) -> str == ''
-nonEmpty = (str) -> str != ''
-dropEmptyLine = (xs) -> _.dropWhile(xs, isEmpty)
-convert = (mani, csv) ->
-  lines = dropEmptyLine(csv.split('\n'))
-  tables = while lines.length > 0
-    tableLines = _.takeWhile(lines, nonEmpty)
-    lines = _.dropWhile(lines, nonEmpty)
-    lines = dropEmptyLine(lines)
-    new Table(tableLines)
-  (tables.map (t) -> t.toSQL(mani)).join('\n\n')
 
 window.onload = ->
   React.render <Changer />, document.getElementById('changer')

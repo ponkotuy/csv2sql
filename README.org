@@ -1,0 +1,14 @@
+# -*- coding:utf-8 -*-
+
+#+TITLE: CSV to SQL
+#+AUTHOR: ぽんこつ
+#+EMAIL: web@ponkotuy.com
+#+OPTIONS: toc:nil num:nil author:nil creator:nil
+#+STYLE: <link rel="stylesheet" type="text/css" href="org.css"></link>
+#+LANGUAGE: ja
+
+** How to compile
+#+BEGIN_SRC sh
+$ npm install
+$ npm install --global gulp
+$ gulp

@@ -19,4 +19,4 @@ gulp.task 'coffee', ->
   gulp.src ['src/coffee/*.coffee']
     .pipe plumber()
     .pipe coffee()
-    .pipe gulp.dest('js')
+    .pipe gulp.dest('js/')
