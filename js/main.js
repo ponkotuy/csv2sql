@@ -1,7 +1,16 @@
 (function() {
-  var Changer, ManiSelector, Manipulations;
+  var Changer, ManiSelector, Manipulations, details, saveFile;
 
   Manipulations = ['INSERT', 'DELETE', 'SELECT'];
+
+  details = function(m) {
+    switch (m) {
+      case 'INSERT':
+        return ['default', 'divided'];
+      default:
+        return [];
+    }
+  };
 
   ManiSelector = React.createClass({
     propTypes: {
@@ -9,33 +18,52 @@
     },
     getInitialState: function() {
       return {
-        now: ''
+        now: '',
+        detail: ''
       };
     },
-    onClick: function(m) {
+    details: function() {
+      return details(this.state.now);
+    },
+    onClick: function(m, d) {
       return (function(_this) {
         return function() {
+          if (_this.state.now !== m) {
+            d = details(m).length > 0 ? details(m)[0] : '';
+          }
           _this.setState({
-            now: m
+            now: m,
+            detail: d
           });
-          return _this.props.onChange(m);
+          return _this.props.onChange(m, d);
         };
       })(this);
     },
     render: function() {
-      return React.createElement("div", {
+      return React.createElement("div", null, React.createElement("div", {
         "className": "col-sm-3"
       }, React.createElement("div", {
         "className": "list-group top-margin"
       }, Manipulations.map((function(_this) {
         return function(x) {
           return React.createElement("a", {
-            "href": "#",
             "className": 'list-group-item ' + (_this.state.now === x ? 'active' : void 0),
-            "onClick": _this.onClick(x)
+            "onClick": _this.onClick(x, _this.state.detail)
           }, x);
         };
-      })(this))));
+      })(this)))), React.createElement("div", {
+        "className": "col-sm-3"
+      }, React.createElement("div", {
+        "className": "list-group top-margin"
+      }, this.details().map((function(_this) {
+        return function(x) {
+          return React.createElement("a", {
+            "href": "#",
+            "className": 'list-group-item ' + (_this.state.detail === x ? 'active' : void 0),
+            "onClick": _this.onClick(_this.state.now, x)
+          }, x);
+        };
+      })(this)))));
     }
   });
 
@@ -44,10 +72,12 @@
       return {
         csv: "ship\ntype,class,name,weight\n軽巡洋艦,川内型,那珂,5195\n重巡洋艦,利根型,利根,11213",
         sql: '',
-        now: ''
+        now: '',
+        detail: ''
       };
     },
     changeCSV: function(e) {
+      console.log(e);
       this.setState({
         csv: e.target.value
       });
@@ -57,11 +87,15 @@
         });
       }
     },
-    convert: function(now) {
+    convert: function(now, detail) {
       return this.setState({
-        sql: convert(now, this.state.csv),
-        now: now
+        sql: convert(now, detail, this.state.csv),
+        now: now,
+        detail: detail
       });
+    },
+    save: function() {
+      return saveFile(this.state.now + ".sql", this.state.sql);
     },
     render: function() {
       return React.createElement("form", null, React.createElement("div", {
@@ -92,12 +126,29 @@
         "onChange": this.convert,
         "ref": "mani"
       }), React.createElement("div", {
-        "className": "col-sm-offset-3 col-sm-3"
+        "className": "col-sm-3"
       }, React.createElement("div", {
         "className": "top-margin"
-      }))));
+      }, React.createElement("button", {
+        "type": "button",
+        "id": "save",
+        "className": "btn brn-default",
+        "onClick": this.save
+      }, "Save file")))));
     }
   });
+
+  saveFile = function(name, text) {
+    var a, blob;
+    blob = new Blob([text], {
+      type: 'text/plain'
+    });
+    a = document.createElement('a');
+    a.href = window.URL.createObjectURL(blob);
+    a.target = '_blank';
+    a.download = name;
+    return a.click();
+  };
 
   window.onload = function() {
     return React.render(React.createElement(Changer, null), document.getElementById('changer'));
