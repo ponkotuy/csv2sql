@@ -42,6 +42,9 @@ Changer = React.createClass
   convert: (now) ->
     @setState {sql: convert(now, @state.csv), now: now}
 
+  save: () ->
+    saveFile("#{@state.now}.sql", @state.sql)
+
   render: ->
     <form>
       <div className="row">
@@ -59,11 +62,20 @@ Changer = React.createClass
         <ManiSelector onChange=@convert ref="mani" />
         <div className="col-sm-offset-3 col-sm-3">
           <div className="top-margin">
-{#            <button type="button" id="save" className="btn brn-default">Save file</button>}
+            <button type="button" id="save" className="btn brn-default" onClick={@save}>Save file</button>
           </div>
         </div>
       </div>
     </form>
+
+
+saveFile = (name, text) ->
+  blob = new Blob([text], {type: 'text/plain'})
+  a = document.createElement('a')
+  a.href = window.URL.createObjectURL(blob)
+  a.target = '_blank'
+  a.download = name
+  a.click()
 
 
 window.onload = ->
