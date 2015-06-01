@@ -57,7 +57,6 @@ Changer = React.createClass
     detail: ''
 
   changeCSV: (e) ->
-    console.log(e)
     @setState {csv: e.target.value}
     if @state.now != ''
       @setState {sql: convert(@state.now, e.target.value)}
