@@ -1,25 +1,46 @@
 
 Manipulations = ['INSERT', 'DELETE', 'SELECT']
 
+details = (m) ->
+  switch m
+    when 'INSERT' then ['default', 'divided']
+    else []
+
 ManiSelector = React.createClass
   propTypes:
     onChange: React.PropTypes.func.isRequired
 
   getInitialState: ->
     now: ''
+    detail: ''
 
-  onClick: (m) ->
+  details: () ->
+    details(@state.now)
+
+  onClick: (m, d) ->
     () =>
-      @setState {now: m}
-      @props.onChange(m)
+      if @state.now != m
+        d = if details(m).length > 0 then details(m)[0] else ''
+      @setState {now: m, detail: d}
+      @props.onChange(m, d)
 
   render: ->
-    <div className="col-sm-3">
-      <div className="list-group top-margin">
-        {
-          Manipulations.map (x) =>
-            <a href="#" className={'list-group-item ' + (if @state.now == x then 'active')} onClick={@onClick(x)}>{x}</a>
-        }
+    <div>
+      <div className="col-sm-3">
+        <div className="list-group top-margin">
+          {
+            Manipulations.map (x) =>
+              <a className={'list-group-item ' + (if @state.now == x then 'active')} onClick={@onClick(x, @state.detail)}>{x}</a>
+          }
+        </div>
+      </div>
+      <div className="col-sm-3">
+        <div className="list-group top-margin">
+          {
+            @details().map (x) =>
+              <a href="#" className={'list-group-item ' + (if @state.detail == x then 'active')} onClick={@onClick(@state.now, x)}>{x}</a>
+          }
+        </div>
       </div>
     </div>
 
@@ -33,14 +54,16 @@ Changer = React.createClass
          """
     sql: ''
     now: ''
+    detail: ''
 
   changeCSV: (e) ->
+    console.log(e)
     @setState {csv: e.target.value}
     if @state.now != ''
       @setState {sql: convert(@state.now, e.target.value)}
 
-  convert: (now) ->
-    @setState {sql: convert(now, @state.csv), now: now}
+  convert: (now, detail) ->
+    @setState {sql: convert(now, detail, @state.csv), now: now, detail: detail}
 
   save: () ->
     saveFile("#{@state.now}.sql", @state.sql)
@@ -60,7 +83,7 @@ Changer = React.createClass
 
       <div className="row">
         <ManiSelector onChange=@convert ref="mani" />
-        <div className="col-sm-offset-3 col-sm-3">
+        <div className="col-sm-3">
           <div className="top-margin">
             <button type="button" id="save" className="btn brn-default" onClick={@save}>Save file</button>
           </div>

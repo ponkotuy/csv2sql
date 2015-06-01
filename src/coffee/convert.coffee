@@ -14,9 +14,9 @@ class Table
        l.split(',').map(convertCell)
 
   # nullable
-  toSQL: (mani) ->
+  toSQL: (mani, detail) ->
     switch mani
-      when 'INSERT' then @createInsert()
+      when 'INSERT' then createInsert(detail, this)
       when 'DELETE' then @createDelete()
       when 'SELECT' then @createSelect()
       else null
@@ -28,12 +28,6 @@ class Table
       "  WHERE #{@columns[0]} IN (#{@records.concat().join(', ')})"
     else
       "  WHERE (#{@columns.join(', ')}) IN (\n    #{@linesWithComma().join(',\n    ')})"
-
-  createInsert: ->
-    """
-    INSERT INTO #{@name} (#{@columns.join(', ')}) VALUES
-      #{@linesWithComma().join(',\n  ')};
-    """
 
   createDelete: ->
     """
@@ -51,13 +45,13 @@ isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
 dropEmptyLine = (xs) -> _.dropWhile(xs, isEmpty)
 
-@convert = (mani, csv) ->
+@convert = (mani, detail, csv) ->
   lines = dropEmptyLine(csv.split('\n'))
   tables = while lines.length > 0
     tableLines = _.takeWhile(lines, nonEmpty)
     lines = _.dropWhile(lines, nonEmpty)
     lines = dropEmptyLine(lines)
     new Table(tableLines)
-  tables.map (t) -> t.toSQL(mani)
+  tables.map (t) -> t.toSQL(mani, detail)
     .filter (s) -> s?
     .join('\n\n')
