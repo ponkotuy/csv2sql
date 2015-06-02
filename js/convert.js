@@ -21,10 +21,10 @@
       });
     }
 
-    Table.prototype.toSQL = function(mani) {
+    Table.prototype.toSQL = function(mani, detail) {
       switch (mani) {
         case 'INSERT':
-          return this.createInsert();
+          return createInsert(detail, this);
         case 'DELETE':
           return this.createDelete();
         case 'SELECT':
@@ -46,10 +46,6 @@
       } else {
         return "  WHERE (" + (this.columns.join(', ')) + ") IN (\n    " + (this.linesWithComma().join(',\n    ')) + ")";
       }
-    };
-
-    Table.prototype.createInsert = function() {
-      return "INSERT INTO " + this.name + " (" + (this.columns.join(', ')) + ") VALUES\n  " + (this.linesWithComma().join(',\n  ')) + ";";
     };
 
     Table.prototype.createDelete = function() {
@@ -76,7 +72,7 @@
     return _.dropWhile(xs, isEmpty);
   };
 
-  this.convert = function(mani, csv) {
+  this.convert = function(mani, detail, csv) {
     var lines, tableLines, tables;
     lines = dropEmptyLine(csv.split('\n'));
     tables = (function() {
@@ -91,7 +87,7 @@
       return results;
     })();
     return tables.map(function(t) {
-      return t.toSQL(mani);
+      return t.toSQL(mani, detail);
     }).filter(function(s) {
       return s != null;
     }).join('\n\n');
