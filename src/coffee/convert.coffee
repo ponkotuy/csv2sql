@@ -7,11 +7,12 @@ convertCell = (cell) ->
     cell
 
 class Table
-  constructor: (@lines) ->
+  constructor: (@lines, @sep) ->
     @name = @lines[0]
-    @columns = @lines[1].split(',')
-    @records = @lines.slice(2).map (l) ->
-       l.split(',').map(convertCell)
+    @columns = @lines[1].split(@sep)
+    console.log(@sep)
+    @records = @lines.slice(2).map (l) =>
+      l.split(@sep).map(convertCell)
 
   # nullable
   toSQL: (mani, detail) ->
@@ -45,13 +46,21 @@ isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
 dropEmptyLine = (xs) -> _.dropWhile(xs, isEmpty)
 
+matchCount = (str, re) -> (str.match(re) || []).length
+
+decideSeparator = (str) ->
+  comma = matchCount(str, /,/g)
+  tab = matchCount(str, /\t/g)
+  if comma > tab then ',' else '\t'
+
 @convert = (mani, detail, csv) ->
+  sep = decideSeparator(csv)
   lines = dropEmptyLine(csv.split('\n'))
   tables = while lines.length > 0
     tableLines = _.takeWhile(lines, nonEmpty)
     lines = _.dropWhile(lines, nonEmpty)
     lines = dropEmptyLine(lines)
-    new Table(tableLines)
+    new Table(tableLines, sep)
   tables.map (t) -> t.toSQL(mani, detail)
     .filter (s) -> s?
     .join('\n\n')
