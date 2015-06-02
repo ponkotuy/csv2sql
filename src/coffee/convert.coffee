@@ -7,16 +7,17 @@ convertCell = (cell) ->
     cell
 
 class Table
-  constructor: (@lines) ->
+  constructor: (@lines, @sep) ->
     @name = @lines[0]
-    @columns = @lines[1].split(',')
-    @records = @lines.slice(2).map (l) ->
-       l.split(',').map(convertCell)
+    @columns = @lines[1].split(@sep)
+    console.log(@sep)
+    @records = @lines.slice(2).map (l) =>
+      l.split(@sep).map(convertCell)
 
   # nullable
-  toSQL: (mani) ->
+  toSQL: (mani, detail) ->
     switch mani
-      when 'INSERT' then @createInsert()
+      when 'INSERT' then createInsert(detail, this)
       when 'DELETE' then @createDelete()
       when 'SELECT' then @createSelect()
       else null
@@ -28,12 +29,6 @@ class Table
       "  WHERE #{@columns[0]} IN (#{@records.concat().join(', ')})"
     else
       "  WHERE (#{@columns.join(', ')}) IN (\n    #{@linesWithComma().join(',\n    ')})"
-
-  createInsert: ->
-    """
-    INSERT INTO #{@name} (#{@columns.join(', ')}) VALUES
-      #{@linesWithComma().join(',\n  ')};
-    """
 
   createDelete: ->
     """
@@ -51,13 +46,21 @@ isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
 dropEmptyLine = (xs) -> _.dropWhile(xs, isEmpty)
 
-@convert = (mani, csv) ->
+matchCount = (str, re) -> (str.match(re) || []).length
+
+decideSeparator = (str) ->
+  comma = matchCount(str, /,/g)
+  tab = matchCount(str, /\t/g)
+  if comma > tab then ',' else '\t'
+
+@convert = (mani, detail, csv) ->
+  sep = decideSeparator(csv)
   lines = dropEmptyLine(csv.split('\n'))
   tables = while lines.length > 0
     tableLines = _.takeWhile(lines, nonEmpty)
     lines = _.dropWhile(lines, nonEmpty)
     lines = dropEmptyLine(lines)
-    new Table(tableLines)
-  tables.map (t) -> t.toSQL(mani)
+    new Table(tableLines, sep)
+  tables.map (t) -> t.toSQL(mani, detail)
     .filter (s) -> s?
     .join('\n\n')
