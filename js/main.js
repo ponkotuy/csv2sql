@@ -77,7 +77,6 @@
       };
     },
     changeCSV: function(e) {
-      console.log(e);
       this.setState({
         csv: e.target.value
       });

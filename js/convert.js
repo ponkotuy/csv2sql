@@ -1,5 +1,5 @@
 (function() {
-  var Table, convertCell, dropEmptyLine, isEmpty, nonEmpty;
+  var Table, convertCell, decideSeparator, dropEmptyLine, isEmpty, matchCount, nonEmpty;
 
   convertCell = function(cell) {
     var ref;
@@ -12,13 +12,17 @@
   };
 
   Table = (function() {
-    function Table(lines1) {
+    function Table(lines1, sep1) {
       this.lines = lines1;
+      this.sep = sep1;
       this.name = this.lines[0];
-      this.columns = this.lines[1].split(',');
-      this.records = this.lines.slice(2).map(function(l) {
-        return l.split(',').map(convertCell);
-      });
+      this.columns = this.lines[1].split(this.sep);
+      console.log(this.sep);
+      this.records = this.lines.slice(2).map((function(_this) {
+        return function(l) {
+          return l.split(_this.sep).map(convertCell);
+        };
+      })(this));
     }
 
     Table.prototype.toSQL = function(mani, detail) {
@@ -72,8 +76,24 @@
     return _.dropWhile(xs, isEmpty);
   };
 
+  matchCount = function(str, re) {
+    return (str.match(re) || []).length;
+  };
+
+  decideSeparator = function(str) {
+    var comma, tab;
+    comma = matchCount(str, /,/g);
+    tab = matchCount(str, /\t/g);
+    if (comma > tab) {
+      return ',';
+    } else {
+      return '\t';
+    }
+  };
+
   this.convert = function(mani, detail, csv) {
-    var lines, tableLines, tables;
+    var lines, sep, tableLines, tables;
+    sep = decideSeparator(csv);
     lines = dropEmptyLine(csv.split('\n'));
     tables = (function() {
       var results;
@@ -82,7 +102,7 @@
         tableLines = _.takeWhile(lines, nonEmpty);
         lines = _.dropWhile(lines, nonEmpty);
         lines = dropEmptyLine(lines);
-        results.push(new Table(tableLines));
+        results.push(new Table(tableLines, sep));
       }
       return results;
     })();
