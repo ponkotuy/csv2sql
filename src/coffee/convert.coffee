@@ -10,10 +10,10 @@ class Table
   constructor: (@lines, @sep) ->
     @name = @lines[0]
     @columns = @lines[1].split(@sep)
-    console.log(@sep)
-    @records = @lines.slice(2).map (l) =>
-      l.split(@sep).map(convertCell)
-
+    arrays = $.csv(@sep, '', '\n')(@lines.slice(2).join('\n'))
+    @records = arrays.map (line) ->
+      line.map (x) ->
+        convertCell(x)
   # nullable
   toSQL: (mani, detail) ->
     switch mani
