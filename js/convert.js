@@ -13,16 +13,17 @@
 
   Table = (function() {
     function Table(lines1, sep1) {
+      var arrays;
       this.lines = lines1;
       this.sep = sep1;
       this.name = this.lines[0];
       this.columns = this.lines[1].split(this.sep);
-      console.log(this.sep);
-      this.records = this.lines.slice(2).map((function(_this) {
-        return function(l) {
-          return l.split(_this.sep).map(convertCell);
-        };
-      })(this));
+      arrays = $.csv(this.sep, '', '\n')(this.lines.slice(2).join('\n'));
+      this.records = arrays.map(function(line) {
+        return line.map(function(x) {
+          return convertCell(x);
+        });
+      });
     }
 
     Table.prototype.toSQL = function(mani, detail) {
