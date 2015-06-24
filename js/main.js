@@ -82,7 +82,7 @@
       });
       if (this.state.now !== '') {
         return this.setState({
-          sql: convert(this.state.now, e.target.value)
+          sql: convert(this.state.now, this.state.detail, e.target.value)
         });
       }
     },
