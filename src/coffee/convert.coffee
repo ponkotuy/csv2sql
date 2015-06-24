@@ -3,7 +3,10 @@ class Table
   constructor: (@lines, @sep) ->
     @name = @lines[0]
     @columns = @lines[1].split(@sep)
-    @records = parseCSV(@lines.slice(2))
+    arrays = $.csv(@sep, '', '\n')(@lines.slice(2).join('\n'))
+    @records = arrays.map (line) ->
+      line.map (x) ->
+        convertCell(x)
   # nullable
   toSQL: (mani, detail) ->
     switch mani
@@ -38,10 +41,6 @@ convertCell = (cell) ->
     "'" + cell + "'"
   else
     cell
-
-parseCSV = (lines, sep) ->
-  lines.map (l) =>
-    l.split(sep).map(convertCell)
 
 isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
