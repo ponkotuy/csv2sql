@@ -1,19 +1,12 @@
 
-convertCell = (cell) ->
-  cell = cell.trim()
-  if cell.length > 0 and (cell[0] not in ['"', "'"]) and isNaN(cell)
-    "'" + cell + "'"
-  else
-    cell
-
 class Table
   constructor: (@lines, @sep) ->
     @name = @lines[0]
     @columns = @lines[1].split(@sep)
-    console.log(@sep)
-    @records = @lines.slice(2).map (l) =>
-      l.split(@sep).map(convertCell)
-
+    arrays = $.csv(@sep, '', '\n')(@lines.slice(2).join('\n'))
+    @records = arrays.map (line) ->
+      line.map (x) ->
+        convertCell(x)
   # nullable
   toSQL: (mani, detail) ->
     switch mani
@@ -41,6 +34,13 @@ class Table
     SELECT * FROM #{@name}
     #{@whereIn()};
     """
+
+convertCell = (cell) ->
+  cell = cell.trim()
+  if cell.length > 0 and (cell[0] not in ['"', "'"]) and isNaN(cell)
+    "'" + cell + "'"
+  else
+    cell
 
 isEmpty = (str) -> str == ''
 nonEmpty = (str) -> str != ''
