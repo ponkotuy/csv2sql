@@ -92,13 +92,14 @@ Changer = React.createClass
 
 
 saveFile = (name, text) ->
+  console.log(name, text)
   blob = new Blob([text], {type: 'text/plain'})
   a = document.createElement('a')
   a.href = window.URL.createObjectURL(blob)
-  a.target = '_blank'
   a.download = name
+  document.body.appendChild(a)
   a.click()
-
+  a.parentNode.removeChild(a)
 
 window.onload = ->
   React.render <Changer />, document.getElementById('changer')
