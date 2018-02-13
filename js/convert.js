@@ -1,8 +1,8 @@
 (function() {
   var Table, convertCell, decideSeparator, dropEmptyLine, isEmpty, matchCount, nonEmpty;
 
-  Table = (function() {
-    function Table(lines1, sep1) {
+  Table = class Table {
+    constructor(lines1, sep1) {
       var arrays;
       this.lines = lines1;
       this.sep = sep1;
@@ -16,7 +16,8 @@
       });
     }
 
-    Table.prototype.toSQL = function(mani, detail) {
+    // nullable
+    toSQL(mani, detail) {
       switch (mani) {
         case 'INSERT':
           return createInsert(detail, this);
@@ -27,33 +28,31 @@
         default:
           return null;
       }
-    };
+    }
 
-    Table.prototype.linesWithComma = function() {
+    linesWithComma() {
       return this.records.map(function(line) {
-        return "(" + (line.join(', ')) + ")";
+        return `(${line.join(', ')})`;
       });
-    };
+    }
 
-    Table.prototype.whereIn = function() {
+    whereIn() {
       if (this.columns.length === 1) {
-        return "  WHERE " + this.columns[0] + " IN (" + (this.records.concat().join(', ')) + ")";
+        return `  WHERE ${this.columns[0]} IN (${this.records.concat().join(', ')})`;
       } else {
-        return "  WHERE (" + (this.columns.join(', ')) + ") IN (\n    " + (this.linesWithComma().join(',\n    ')) + ")";
+        return `  WHERE (${this.columns.join(', ')}) IN (\n    ${this.linesWithComma().join(',\n    ')})`;
       }
-    };
+    }
 
-    Table.prototype.createDelete = function() {
-      return "DELETE FROM " + this.name + "\n" + (this.whereIn()) + ";";
-    };
+    createDelete() {
+      return `DELETE FROM ${this.name}\n${this.whereIn()};`;
+    }
 
-    Table.prototype.createSelect = function() {
-      return "SELECT * FROM " + this.name + "\n" + (this.whereIn()) + ";";
-    };
+    createSelect() {
+      return `SELECT * FROM ${this.name}\n${this.whereIn()};`;
+    }
 
-    return Table;
-
-  })();
+  };
 
   convertCell = function(cell) {
     var ref;

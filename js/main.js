@@ -12,7 +12,7 @@
     }
   };
 
-  ManiSelector = React.createClass({
+  ManiSelector = React.createClass({displayName: "ManiSelector",
     propTypes: {
       onChange: React.PropTypes.func.isRequired
     },
@@ -67,7 +67,7 @@
     }
   });
 
-  Changer = React.createClass({
+  Changer = React.createClass({displayName: "Changer",
     getInitialState: function() {
       return {
         csv: "ship\ntype,class,name,weight\n軽巡洋艦,川内型,那珂,5195\n重巡洋艦,利根型,利根,11213",
@@ -139,14 +139,16 @@
 
   saveFile = function(name, text) {
     var a, blob;
+    console.log(name, text);
     blob = new Blob([text], {
       type: 'text/plain'
     });
     a = document.createElement('a');
     a.href = window.URL.createObjectURL(blob);
-    a.target = '_blank';
     a.download = name;
-    return a.click();
+    document.body.appendChild(a);
+    a.click();
+    return a.parentNode.removeChild(a);
   };
 
   window.onload = function() {
