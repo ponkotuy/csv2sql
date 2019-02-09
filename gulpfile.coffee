@@ -3,13 +3,6 @@ coffee = require 'gulp-coffee'
 cjsx = require 'gulp-cjsx'
 plumber = require 'gulp-plumber'
 
-gulp.task 'default', ['cjsx', 'coffee', 'js', 'watch']
-
-gulp.task 'watch', ->
-  gulp.watch ['src/coffee/*.coffee'], ['coffee']
-  gulp.watch ['src/coffee/*.cjsx'], ['cjsx']
-  gulp.watch ['src/js/*.js'], ['js']
-
 gulp.task 'cjsx', ->
   gulp.src ['src/coffee/*.cjsx']
     .pipe plumber()
@@ -25,3 +18,12 @@ gulp.task 'coffee', ->
 gulp.task 'js', ->
   gulp.src ['src/js/*.js']
     .pipe gulp.dest('js/')
+
+gulp.task 'compile', gulp.series(gulp.parallel('cjsx', 'coffee', 'js'))
+
+gulp.task 'watch', gulp.series 'compile', ->
+  gulp.watch('src/coffee/*.coffee', gulp.task('coffee'))
+  gulp.watch('src/coffee/*.cjsx', gulp.task('cjsx'))
+  gulp.watch('src/js/*.js', gulp.task('js'))
+
+gulp.task 'default', gulp.series('watch')
