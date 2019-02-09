@@ -6,12 +6,12 @@
   "author": "ponkotuy",
   "license": "MIT",
   "devDependencies": {
-    "bootstrap": "^3.3.7",
-    "coffeescript": "^2.2.1",
-    "gulp": "^3.9.1",
+    "bootstrap": "^3.4.0",
+    "coffeescript": "^2.3.2",
+    "gulp": "^4.0.0",
     "gulp-cjsx": "^4.1.0",
-    "gulp-coffee": "^3.0.2",
-    "gulp-plumber": "^1.0.1",
+    "gulp-coffee": "^3.0.3",
+    "gulp-plumber": "^1.2.1",
     "jquery": "^3.3.1",
     "react": "^0.13.3"
   },
